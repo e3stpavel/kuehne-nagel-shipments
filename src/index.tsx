@@ -1,11 +1,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider as ReactReduxProvider } from 'react-redux';
+import './app/fonts.css'
 import { ChakraProvider } from '@chakra-ui/react';
+import theme from './app/theme';
 import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-// import './index.css';
+import './index.css';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
@@ -13,7 +15,7 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <ReactReduxProvider store={store}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
     </ReactReduxProvider>

@@ -1,3 +1,9 @@
 {
-  "extends": ["@imaginary-cloud/react"]
+  // "extends": ["@imaginary-cloud/react"]
+  "plugins": [
+    "react-redux"
+  ],
+  "extends": [
+    "plugin:react-redux/recommended"
+  ]
 }
