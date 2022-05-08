@@ -1,14 +1,20 @@
-import React from "react"
-import { Stack } from "@chakra-ui/react"
-import { Sidebar } from './features/sidebar/Sidebar';
-import { Table } from "./features/table/Table";
+// import { useState } from 'react'
+import { Outlet } from 'react-router-dom'
+import SideBar from './components/Sidebar'
+import './App.css'
 
 function App() {
+  // const [count, setCount] = useState(0)
+
   return (
-    <Stack spacing={0} direction='row' height='100%' className="app">
-      <Sidebar />
-      <Table />
-    </Stack>
+    <div className="App flex flex-row items-center">
+      <aside className="h-full" style={{ minWidth: 'fit-content' }}>
+        <SideBar />
+      </aside>
+      <div className="h-full w-full bg-white px-16 py-20">
+        <Outlet />
+      </div>
+    </div>
   )
 }
 
