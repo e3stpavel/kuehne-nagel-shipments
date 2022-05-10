@@ -5,8 +5,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import Theme from '../chakra.config'
 import Table from './views/shipments/Table/Table'
-import About from './views/about/About'
-import Index from './views/index/Index'
+import Home from './views/home/Home'
+import Details from './views/shipments/Details'
 import App from './App'
 import { store } from './app/store'
 import 'virtual:windi-base.css'
@@ -26,9 +26,11 @@ ReactDOM.createRoot(document.getElementById('root')! as HTMLElement).render(
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<App />}>
-                <Route index element={<Index />} />
-                <Route path="shipments" element={<Table />} />
-                <Route path="about" element={<About />} />
+                <Route index element={<Home />} />
+                <Route path="shipments">
+                  <Route index element={<Table />} />
+                  <Route path=":orderNo" element={<Details />} />
+                </Route>
               </Route>
             </Routes>
         </BrowserRouter>

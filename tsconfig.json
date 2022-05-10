@@ -20,12 +20,13 @@
       "node",
       "react",
       "react-dom",
+      "unplugin-icons/types/react"
     ],
     "paths": {
       "~/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "./**/*.json"],
   "exclude": ["node_modules", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

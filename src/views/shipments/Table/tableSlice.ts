@@ -24,6 +24,6 @@ export const tableSlice = createSlice({
 
 export const { increment } = tableSlice.actions
 
-export const selectTable = (state: RootState) => state.table.value
+// export const selectTable = (state: RootState) => state.table.value
 
 export default tableSlice.reducer

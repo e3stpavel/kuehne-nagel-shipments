@@ -1,10 +1,10 @@
 import type { Action, ThunkAction } from '@reduxjs/toolkit'
 import { configureStore } from '@reduxjs/toolkit'
-import tableReducer from '~/views/shipments/Table/tableSlice'
+import shipmentsReducer from '~/views/shipments/shipmentsSlice'
 
 export const store = configureStore({
   reducer: {
-    table: tableReducer,
+    shipments: shipmentsReducer,
   },
 })
 

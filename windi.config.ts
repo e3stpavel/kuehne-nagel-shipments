@@ -6,6 +6,7 @@ export default defineConfig({
       colors: {
         brand: {
           900: '#12316E',
+          600: '#0099DA',
         },
         gray: {
           50: '#F7FAFC',
