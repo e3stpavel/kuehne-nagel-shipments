@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverHeader,
   Portal,
+  Skeleton,
   Stack,
   TableCaption,
   TableContainer,
@@ -23,10 +24,10 @@ import {
 } from '@chakra-ui/react'
 // import { increment, selectTable } from './tableSlice'
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   decrementPageNumber,
-  deleteSelectedShipment,
+  getShipments,
   incrementPageNumber,
   updateRowsPerPageOnResize,
   updateStartingIndexForRow,
@@ -34,50 +35,82 @@ import {
 import PhMoreIcon from '~icons/ph/dots-three'
 import PhCaretRight from '~icons/ph/caret-right-bold'
 import PhCaretLeft from '~icons/ph/caret-left-bold'
+import PhArrowClockwise from '~icons/ph/arrow-clockwise-bold'
 import { useAppDispatch, useAppSelector } from '~/app/hooks'
+import DeleteShipmentModal from '~/components/DeleteShipmentModal'
+import { API_GET_SHIPMENTS } from '~/app/consts'
 
 // Some Chakra UI PopoverTrigger quick fix
 export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OriginalPopoverTrigger
 
 export default function Table() {
-  const shipments = useAppSelector(state => state.shipments)
+  const shipmentsState = useAppSelector(state => state.shipments)
   const dispatch = useAppDispatch()
 
-  // paginate
+  const navigate = useNavigate()
+
+  // paginate, count rows per page on the fly
   window.addEventListener('resize', () => {
     dispatch(updateRowsPerPageOnResize(window.innerHeight))
   })
 
-  // truncate the array
-  const endIndexForRow = shipments.startingIndexForRow + shipments.rowsPerPage
-  const shipmentsList = shipments.data.slice(shipments.startingIndexForRow, endIndexForRow)
+  // truncate the array to display the correct amount of rows per page
+  const endIndexForRow = shipmentsState.startingIndexForRow + shipmentsState.rowsPerPage
+  const shipmentsList = shipmentsState.data.slice(shipmentsState.startingIndexForRow, endIndexForRow)
+
+  const isLoading = shipmentsState.status === 'loading'
 
   return (
     <div className="max-w-full h-full flex flex-col">
       <Heading mb={24}>Shipments</Heading>
 
+      {/* TODO: Handle Failed State status */}
       <TableContainer height={'full'}>
         <ChakraTable variant={'simple'} size="sm" className="">
           <TableCaption paddingX={0} fontSize="md">
             <div className="flex flex-row justify-between items-center">
-              <Text color={'gray.500'}>
-                Last update {}
-              </Text>
+              <Stack direction={'row'} spacing={0} align="center">
+                <Button
+                  leftIcon={<PhArrowClockwise />}
+                  variant={'ghost'}
+                  color={'brand.900'}
+                  _hover={{
+                    bg: 'transparent',
+                    textDecoration: 'underline',
+                    color: 'brand.600',
+                  }}
+                  paddingLeft={0}
+                  isLoading={isLoading}
+                  loadingText="Updating"
+                  spinner={<PhArrowClockwise className="animate-spin" />}
+                  onClick={() => dispatch(getShipments(API_GET_SHIPMENTS))}
+                >
+                  Update
+                </Button>
+                <Skeleton isLoaded={!isLoading}>
+                  <Text color={'gray.500'}>
+                    Last updated { shipmentsState.updatedAt }
+                  </Text>
+                </Skeleton>
+              </Stack>
+
               <Stack spacing={6} align="center" direction={'row'}>
-                <Text fontSize={'sm'} color={'gray.700'}>
-                  { shipments.startingIndexForRow + 1 }-{ `${endIndexForRow > shipments.data.length ? shipments.data.length : endIndexForRow} ` }
-                  <span className="text-gray-500">
-                    of { `${shipments.data.length} (Page ${shipments.page})`}
-                  </span>
-                </Text>
+                <Skeleton isLoaded={!isLoading}>
+                  <Text fontSize={'sm'} color={'gray.700'}>
+                    { shipmentsState.startingIndexForRow + 1 }-{ `${endIndexForRow > shipmentsState.data.length ? shipmentsState.data.length : endIndexForRow} ` }
+                    <span className="text-gray-500">
+                      of { `${shipmentsState.data.length} (Page ${shipmentsState.page})`}
+                    </span>
+                  </Text>
+                </Skeleton>
 
                 <Stack spacing={2} align="center" direction={'row'}>
                   <IconButton
                     onClick={() => {
-                      dispatch(updateStartingIndexForRow(shipments.startingIndexForRow - shipments.rowsPerPage))
+                      dispatch(updateStartingIndexForRow(shipmentsState.startingIndexForRow - shipmentsState.rowsPerPage))
                       dispatch(decrementPageNumber())
                     }}
-                    isDisabled={ shipments.startingIndexForRow <= 0 }
+                    isDisabled={ shipmentsState.startingIndexForRow <= 0 || isLoading }
                     aria-label="Previous Page"
                     variant={'ghost'}
                     color={'gray.700'}
@@ -89,7 +122,7 @@ export default function Table() {
                       dispatch(updateStartingIndexForRow(endIndexForRow))
                       dispatch(incrementPageNumber())
                     }}
-                    isDisabled={ endIndexForRow > shipments.data.length - 1 }
+                    isDisabled={ endIndexForRow > shipmentsState.data.length - 1 || isLoading }
                     aria-label="Next Page"
                     variant={'ghost'}
                     color={'gray.700'}
@@ -112,26 +145,34 @@ export default function Table() {
           </Thead>
           <Tbody>
             {shipmentsList.map((shipment, i) => (
+
               <Tr key={shipment.orderNo} bg={ i % 2 === 0 ? 'gray.50' : 'white' }>
-                <Td>{ shipment.orderNo }</Td>
-                <Td>{ shipment.date }</Td>
-                <Td style={{ whiteSpace: 'normal', maxWidth: '200px' }}><Text isTruncated>{ shipment.customer }</Text></Td>
-                <Td>{ shipment.trackingNo }</Td>
+                <Td _hover={{
+                  textDecoration: 'underline',
+                  color: 'brand.600',
+                  cursor: 'pointer',
+                }}
+                className={ isLoading ? 'text-gray-400 !cursor-default' : ''}
+                onClick={() => {
+                  if (!isLoading)
+                    navigate(`/shipments/${shipment.orderNo}`)
+                }}>{ shipment.orderNo }</Td>
+                <Td className={ isLoading ? 'text-gray-400' : ''}>{ shipment.date }</Td>
+                <Td
+                  style={{ whiteSpace: 'normal', maxWidth: '200px' }}
+                  className={ isLoading ? 'text-gray-400' : ''}
+                >
+                  <Text isTruncated>{ shipment.customer }</Text>
+                </Td>
+                <Td className={ isLoading ? 'text-gray-400' : ''}>{ shipment.trackingNo }</Td>
                 <Td>
-                  {/* <IconButton
-                    onClick={() => dispatch(deleteLastRow())}
-                    aria-label={`Shipment ${shipment.orderNo} actions`}
-                    variant={'ghost'}
-                    colorScheme={'whiteAplha'}
-                    icon={<PhMoreIcon style={{ fontSize: '1.5em' }} />}
-                  /> */}
                   <Popover>
                     <PopoverTrigger>
                       <IconButton
                         aria-label={`Shipment ${shipment.orderNo} actions`}
                         variant={'ghost'}
-                        colorScheme={'whiteAplha'}
                         icon={<PhMoreIcon style={{ fontSize: '1.5em' }} />}
+                        isDisabled={isLoading}
                       />
                     </PopoverTrigger>
                     <Portal>
@@ -145,22 +186,20 @@ export default function Table() {
                         </PopoverHeader>
                         <PopoverBody>
                           <Stack direction={'column'} spacing={2}>
-                            <Button
-                              width={'full'}
-                              style={{ textTransform: 'capitalize' }}
-                            >
-                              <Link to={ shipment.orderNo }>
+                            <Link to={ shipment.orderNo }>
+                              <Button
+                                width={'full'}
+                                style={{ textTransform: 'capitalize' }}
+                              >
                                 open details
-                              </Link>
-                            </Button>
-                            <Button
-                              width={'full'}
-                              colorScheme={'red'}
-                              style={{ textTransform: 'capitalize' }}
-                              onClick={() => dispatch(deleteSelectedShipment(shipment))}
-                            >
-                              delete shipment
-                            </Button>
+                              </Button>
+                            </Link>
+                            <DeleteShipmentModal
+                              shipment={shipment}
+                              buttonStyle={{
+                                width: 'full',
+                              }}
+                            />
                           </Stack>
                         </PopoverBody>
                       </PopoverContent>

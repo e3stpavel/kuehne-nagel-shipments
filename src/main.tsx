@@ -9,6 +9,8 @@ import Home from './views/home/Home'
 import Details from './views/shipments/Details'
 import App from './App'
 import { store } from './app/store'
+import { getShipments } from './views/shipments/shipmentsSlice'
+import { API_GET_SHIPMENTS } from './app/consts'
 import 'virtual:windi-base.css'
 import 'virtual:windi-components.css'
 import './styles/fonts.css'
@@ -18,6 +20,9 @@ import 'virtual:windi-utilities.css'
 // dev
 import 'virtual:windi-devtools'
 import reportWebVitals from './reportWebVitals'
+
+// Fetch the data on app init
+store.dispatch(getShipments(API_GET_SHIPMENTS))
 
 ReactDOM.createRoot(document.getElementById('root')! as HTMLElement).render(
   <StrictMode>

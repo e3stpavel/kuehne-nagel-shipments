@@ -21,6 +21,9 @@ export default defineConfig({
           600: '#C53030',
         },
       },
+      animation: {
+        'spin-reverse': 'spin reverse infinite',
+      },
     },
   },
   extract: {

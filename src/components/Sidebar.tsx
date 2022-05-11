@@ -1,4 +1,5 @@
 import { Heading, Stack } from '@chakra-ui/react'
+import clsx from 'clsx'
 import { NavLink } from 'react-router-dom'
 import logo from '/path1484.svg'
 
@@ -8,10 +9,22 @@ function Tab(prop: { name: string; route?: string }): JSX.Element {
     route = prop.route
 
   return (
-    <NavLink to={`/${route}`}
-      className={({ isActive }) => isActive ? 'border border-transparent border-b-brand-900 text-black' : 'border border-transparent text-gray-600'}
+    <NavLink
+      to={`/${route}`}
+      className={
+        ({ isActive }) => clsx(
+          'border border-transparent',
+          'hover:text-brand-600',
+          { 'border-b-brand-900 text-brand-900': isActive },
+          { 'text-gray-600': !isActive },
+        )}
     >
-      <Heading size={'md'} letterSpacing={'0.1px'} pb={1} style={{ textTransform: 'capitalize' }}>
+      <Heading
+        size={'md'}
+        letterSpacing={'0.1px'}
+        pb={1}
+        style={{ textTransform: 'capitalize' }}
+      >
         { prop.name }
       </Heading>
     </NavLink>
@@ -19,6 +32,7 @@ function Tab(prop: { name: string; route?: string }): JSX.Element {
 }
 
 export default function SideBar() {
+  // TODO: make responsive a bit
   return (
     <div className="px-16 py-20 h-full bg-gray-50 flex flex-col">
       <Stack spacing={4} direction="row" align="center">

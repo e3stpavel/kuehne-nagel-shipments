@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, EditableInput as ChakraEditableInput, Editable, EditablePreview, Stack, useEditableControls } from '@chakra-ui/react'
+import type { Shipment } from '../views/shipments/shipmentsSlice'
 
 function EditableControls() {
   const {
@@ -21,7 +22,7 @@ function EditableControls() {
         }}
         {...getSubmitButtonProps()}
       >
-        Confirm
+        Save
       </Button>
       <Button
         variant={'ghost'}
@@ -55,11 +56,12 @@ function EditableControls() {
       )
 }
 
-export default function EditableInput(prop: { defaultValue: string }) {
+export default function EditableInput(prop: { defaultValue: string; shipment: Shipment }) {
   return (
   <Editable
     defaultValue={prop.defaultValue}
     isPreviewFocusable={false}
+    submitOnBlur={false}
   >
     <Stack direction={'column'}>
       <EditablePreview />

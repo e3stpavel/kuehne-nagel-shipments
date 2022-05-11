@@ -1,13 +1,17 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Box, Button, Heading, Stack, Stat, StatGroup, StatHelpText, StatLabel, StatNumber, Text, chakra } from '@chakra-ui/react'
-import { useAppDispatch, useAppSelector } from '~/app/hooks'
+import { Badge, Box, Button, Heading, Stack, Stat, StatLabel, StatNumber, Text } from '@chakra-ui/react'
+import clsx from 'clsx'
+import { useAppSelector } from '~/app/hooks'
+import EditableInput from '~/components/EditableInput'
+import DeleteShipmentModal from '~/components/DeleteShipmentModal'
 import PhCaretRight from '~icons/ph/caret-right-bold'
 import PhCaretLeft from '~icons/ph/caret-left-bold'
-import EditableInput from '~/components/EditableInput'
 
-function DetailsHeader(): JSX.Element {
+function DetailsHeader(prop: { updatedAt: string; shipmentStatus?: string }): JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
+
+  const status = prop.shipmentStatus?.slice(1, prop.shipmentStatus?.length - 1)
 
   return (
     <div>
@@ -23,11 +27,28 @@ function DetailsHeader(): JSX.Element {
           Shipments
         </Heading>
         <PhCaretRight className="w-6 h-6" />
-        <Heading>Details</Heading>
+        <Stack direction={'row'} spacing={4} align={'center'}>
+          <Heading>Details</Heading>
+          <Badge
+            variant={'subtle'}
+            colorScheme={clsx(
+              { gray: status !== 'Shipped' && status !== 'Delivered' },
+              { blue: status === 'Shipped' },
+              { green: status === 'Delivered' },
+            )}
+            fontSize={'lg'}
+            className={clsx(
+              { hidden: !prop.shipmentStatus },
+            )}
+          >
+            { status }
+          </Badge>
+        </Stack>
       </Stack>
 
       <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
         <Button
+          onClick={() => navigate(`/shipments/${location.search}`)}
           leftIcon={<PhCaretLeft style={{ fontSize: '0.75em' }} />}
           variant={'ghost'}
           color="brand.900"
@@ -41,7 +62,7 @@ function DetailsHeader(): JSX.Element {
           go back
         </Button>
         <Text color={'gray.500'}>
-          Last updated {}
+          Last updated { prop.updatedAt }
         </Text>
       </Stack>
     </div>
@@ -51,79 +72,66 @@ function DetailsHeader(): JSX.Element {
 export default function Details() {
   const params = useParams()
 
-  const shipments = useAppSelector(state => state.shipments)
-  const shipment = shipments.data.find(
+  const shipmentsState = useAppSelector(state => state.shipments)
+  const shipment = shipmentsState.data.find(
     s => s.orderNo === params.orderNo,
   )
-
-  // let statStack: JSX.Element
-  // for (let i = 0; i < Object.entries(shipment as object).length; i++) {
-  //   const keys = Object.keys(shipment as object)
-  //   const values = Object.values(shipment as object)
-
-  //   statStack = <StatGroup>
-  //     <Stat p={6}>
-  //       <StatLabel>{ keys[i] }</StatLabel>
-  //       <StatNumber>
-  //         <EditableInput defaultValue={values[i]} />
-  //       </StatNumber>
-  //     </Stat>
-  //     <Box width={'px'} height={'full'} className="bg-gradient bg-gradient-to-b from-transparent to-gray-400" />
-  //     <Stat p={6}>
-  //       <StatLabel>{ keys[i % Object.entries(shipment as object).length === 0 ? i : i + 1] }</StatLabel>
-  //       <StatNumber>
-  //         <EditableInput defaultValue={ values[i % Object.entries(shipment as object).length === 0 ? i : i + 1] } />
-  //       </StatNumber>
-  //     </Stat>
-  //   </StatGroup>
-  // }
 
   // if shipment doesnt exist who throw the message
   return shipment
     ? (
     <div className="max-w-full h-full flex flex-col">
-      <DetailsHeader />
+      <DetailsHeader updatedAt={ shipmentsState.updatedAt } shipmentStatus={ shipment.status } />
 
       <div className="grid grid-cols-2">
         {Object.entries(shipment).map(([key, value], i) => (
           <div key={key} className="relative">
-            <Box width={'px'} height={'full'} className={
-              i % 2 === 0
-                ? 'absolute top-0 right-0 bg-gradient bg-gradient-to-b from-transparent to-gray-400'
-                : 'absolute top-0 right-0 hidden' } />
+            <Box width={'px'} height={'full'} className={clsx(
+              'absolute',
+              'top-0',
+              'right-0',
+              { hidden: i % 2 !== 0 },
+              { 'bg-gradient bg-gradient-to-b from-transparent to-gray-200': i === 0 },
+              { 'bg-gray-200': i % 2 === 0 && i > 0 && i < Object.entries(shipment).length - 2 },
+              { 'bg-gradient bg-gradient-to-t from-transparent to-gray-200': i === Object.entries(shipment).length - 2 },
+            )} />
             <Stat p={6}>
-              <StatLabel>{key}</StatLabel>
+              <StatLabel fontWeight={'semibold'} color={'gray.600'}>
+                { key.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase() }
+              </StatLabel>
               <StatNumber>
-                <EditableInput defaultValue={value} />
+                <EditableInput
+                  defaultValue={value}
+                  shipment={shipment}
+                />
               </StatNumber>
             </Stat>
-            <Box height={'px'} width={'full'} className={
-              i % 2 === 0
-                ? 'bg-gradient bg-gradient-to-r from-transparent to-gray-400'
-                : 'bg-gradient bg-gradient-to-l from-transparent to-gray-400' } />
+            <Box height={'px'} width={'full'} className={clsx(
+              'bg-gradient from-transparent to-gray-200',
+              { 'bg-gradient-to-r ': i % 2 === 0 },
+              { 'bg-gradient-to-l': i % 2 !== 0 },
+              { hidden: i >= Object.entries(shipment).length - 2 },
+            )} />
           </div>
         ))}
-        {/* <StatGroup>
-          <Stat p={6}>
-            <StatLabel>Order no</StatLabel>
-            <StatNumber>
-              <EditableInput defaultValue={shipment.orderNo} />
-            </StatNumber>
-          </Stat>
-          <Box width={'px'} height={'full'} className="bg-gradient bg-gradient-to-b from-transparent to-gray-400" />
-          <Stat p={6}>
-            <StatLabel>Date</StatLabel>
-            <StatNumber>
-              <EditableInput defaultValue={shipment.date} />
-            </StatNumber>
-          </Stat>
-        </StatGroup> */}
       </div>
+
+      <DeleteShipmentModal shipment={ shipment } buttonStyle={{
+        variant: 'ghost',
+        ml: 'auto',
+        mr: 0,
+        paddingRight: 0,
+        _hover: {
+          bg: 'transparent',
+          textDecoration: 'underline',
+        },
+      }} />
+
     </div>
       )
     : (
     <div className="max-w-full h-full flex flex-col">
-      <DetailsHeader />
+      <DetailsHeader updatedAt={ shipmentsState.updatedAt } />
       <Text>Seems like we couldn`t find the shipment</Text>
     </div>
       )
