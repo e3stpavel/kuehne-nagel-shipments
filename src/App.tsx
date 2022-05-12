@@ -1,7 +1,7 @@
 // import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import SideBar from './components/Sidebar'
-import './App.css'
+import './styles/App.css'
 
 function App() {
   // const [count, setCount] = useState(0)

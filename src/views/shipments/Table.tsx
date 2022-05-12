@@ -21,6 +21,7 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from '@chakra-ui/react'
 // import { increment, selectTable } from './tableSlice'
 import React from 'react'
@@ -31,14 +32,14 @@ import {
   incrementPageNumber,
   updateRowsPerPageOnResize,
   updateStartingIndexForRow,
-} from '../shipmentsSlice'
+} from './shipmentsSlice'
 import PhMoreIcon from '~icons/ph/dots-three'
 import PhCaretRight from '~icons/ph/caret-right-bold'
 import PhCaretLeft from '~icons/ph/caret-left-bold'
 import PhArrowClockwise from '~icons/ph/arrow-clockwise-bold'
 import { useAppDispatch, useAppSelector } from '~/app/hooks'
 import DeleteShipmentModal from '~/components/DeleteShipmentModal'
-import { API_GET_SHIPMENTS } from '~/app/consts'
+import { API_FAIL_TOAST_ID, API_GET_SHIPMENTS } from '~/app/consts'
 
 // Some Chakra UI PopoverTrigger quick fix
 export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OriginalPopoverTrigger
@@ -59,12 +60,12 @@ export default function Table() {
   const shipmentsList = shipmentsState.data.slice(shipmentsState.startingIndexForRow, endIndexForRow)
 
   const isLoading = shipmentsState.status === 'loading'
+  const toast = useToast()
 
   return (
     <div className="max-w-full h-full flex flex-col">
       <Heading mb={24}>Shipments</Heading>
 
-      {/* TODO: Handle Failed State status */}
       <TableContainer height={'full'}>
         <ChakraTable variant={'simple'} size="sm" className="">
           <TableCaption paddingX={0} fontSize="md">
@@ -83,7 +84,24 @@ export default function Table() {
                   isLoading={isLoading}
                   loadingText="Updating"
                   spinner={<PhArrowClockwise className="animate-spin" />}
-                  onClick={() => dispatch(getShipments(API_GET_SHIPMENTS))}
+                  onClick={() => {
+                    dispatch(getShipments(API_GET_SHIPMENTS))
+
+                    if (shipmentsState.status !== 'failed')
+                      return
+
+                    if (toast.isActive(API_FAIL_TOAST_ID))
+                      return
+
+                    toast({
+                      id: API_FAIL_TOAST_ID,
+                      title: 'Failed fetching data',
+                      position: 'bottom-left',
+                      isClosable: true,
+                      variant: 'subtle',
+                      status: 'error',
+                    })
+                  }}
                 >
                   Update
                 </Button>

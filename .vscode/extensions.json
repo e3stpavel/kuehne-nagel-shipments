@@ -1,0 +1,8 @@
+{
+    "recommendations": 
+    [
+      "antfu.vite",
+      "dbaeumer.vscode-eslint",
+      "voorjaar.windicss-intellisense",
+    ]
+  }

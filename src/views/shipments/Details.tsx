@@ -132,7 +132,15 @@ export default function Details() {
     : (
     <div className="max-w-full h-full flex flex-col">
       <DetailsHeader updatedAt={ shipmentsState.updatedAt } />
-      <Text>Seems like we couldn`t find the shipment</Text>
+      <Stack
+        direction={'column'}
+        spacing={4}
+        width={'full'}
+        height={'full'}
+        align="center"
+      >
+        <Text>Seems like we couldn`t find the shipment</Text>
+      </Stack>
     </div>
       )
 }

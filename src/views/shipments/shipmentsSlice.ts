@@ -61,33 +61,6 @@ export const shipmentsSlice = createSlice({
       if (index > -1)
         state.data.splice(index, 1)
     },
-    // works but not as expected, easier to make PUT request to server and get fresh data to the state
-    // TODO: Clear code
-    updateSelectedShipment: (state, action: { payload: { newValue: string; oldValue: string }; type: string }) => {
-      // finding the shipment using old unchanged value
-      const index = state.data.findIndex(
-        s => Object.values(s).find(v => v === action.payload.oldValue),
-      )
-      const shipment = state.data[index]
-
-      if (!shipment)
-        return
-
-      const entries = Object.entries(shipment).map(([key, value]) => {
-        if (value === action.payload.oldValue)
-          value = action.payload.newValue
-
-        return [key, value]
-      })
-
-      entries.forEach((entry) => {
-        const key = entry[0]
-        const value = entry[1]
-
-        // @ts-expect-error Can't figure the better way
-        state.data[index][key] = value
-      })
-    },
     updateStartingIndexForRow: (state, action: { payload: number; type: string }) => {
       state.startingIndexForRow = action.payload
     },
@@ -106,9 +79,9 @@ export const shipmentsSlice = createSlice({
       .addCase(getShipments.pending, (state) => {
         state.status = 'loading'
       })
-      .addCase(getShipments.fulfilled, (state, action) => {
+      .addCase(getShipments.fulfilled, (state, { payload }) => {
         state.status = 'idle'
-        state.data = action.payload
+        state.data = payload
 
         const time = new Date()
         state.updatedAt = time.toLocaleDateString('en-US', {
@@ -119,8 +92,9 @@ export const shipmentsSlice = createSlice({
           minute: '2-digit',
         })
       })
-      .addCase(getShipments.rejected, (state) => {
+      .addCase(getShipments.rejected, (state, { error }) => {
         state.status = 'failed'
+        console.error(`${error.code}: ${error.message}`)
       })
   },
 })
