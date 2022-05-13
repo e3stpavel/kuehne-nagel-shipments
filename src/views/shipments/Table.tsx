@@ -23,7 +23,6 @@ import {
   Tr,
   useToast,
 } from '@chakra-ui/react'
-// import { increment, selectTable } from './tableSlice'
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {

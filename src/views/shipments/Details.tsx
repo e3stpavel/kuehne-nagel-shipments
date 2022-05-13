@@ -6,6 +6,7 @@ import EditableInput from '~/components/EditableInput'
 import DeleteShipmentModal from '~/components/DeleteShipmentModal'
 import PhCaretRight from '~icons/ph/caret-right-bold'
 import PhCaretLeft from '~icons/ph/caret-left-bold'
+import PhShieldWarning from '~icons/ph/shield-warning-fill'
 
 function DetailsHeader(prop: { updatedAt: string; shipmentStatus?: string }): JSX.Element {
   const navigate = useNavigate()
@@ -138,7 +139,9 @@ export default function Details() {
         width={'full'}
         height={'full'}
         align="center"
+        justify="center"
       >
+        <PhShieldWarning className="text-yellow-500 stroke-8 stroke-black w-32 h-32" />
         <Text>Seems like we couldn`t find the shipment</Text>
       </Stack>
     </div>

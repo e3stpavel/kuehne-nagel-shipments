@@ -5,3 +5,19 @@
   overflow: hidden;
   margin: auto auto;
 }
+
+.hand-svg {
+  animation: waving 2.7s infinite;
+}
+
+@keyframes waving {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  50% {
+    transform: rotateZ(25deg);
+  }
+  100% {
+    transform: rotateZ(0deg);
+  }
+}

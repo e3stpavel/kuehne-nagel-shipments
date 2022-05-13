@@ -51,7 +51,7 @@ export const shipmentsSlice = createSlice({
   name: 'shipments',
   initialState,
   reducers: {
-    deleteSelectedShipment: (state, action: { payload: Shipment; type: string }) => {
+    deleteSelectedShipment: (state: ShipmentsState, action: { payload: Shipment; type: string }) => {
       // technicaly need to send request to server using rest to delete
       // but for now using only state
       const index = state.data.findIndex(
@@ -61,16 +61,17 @@ export const shipmentsSlice = createSlice({
       if (index > -1)
         state.data.splice(index, 1)
     },
-    updateStartingIndexForRow: (state, action: { payload: number; type: string }) => {
+    // to edit shipment easier to make put request to the server and then get new data from it
+    updateStartingIndexForRow: (state: ShipmentsState, action: { payload: number; type: string }) => {
       state.startingIndexForRow = action.payload
     },
-    incrementPageNumber: (state) => {
+    incrementPageNumber: (state: ShipmentsState) => {
       state.page++
     },
-    decrementPageNumber: (state) => {
+    decrementPageNumber: (state: ShipmentsState) => {
       state.page--
     },
-    updateRowsPerPageOnResize: (state, action: { payload: number; type: string }) => {
+    updateRowsPerPageOnResize: (state: ShipmentsState, action: { payload: number; type: string }) => {
       state.rowsPerPage = Math.round((action.payload - windowOffsetHeight - thHeight - captionHeight) / tdHeight)
     },
   },
